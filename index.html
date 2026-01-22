@@ -21,7 +21,7 @@ function colorMap(v){
 }
 
 async function loadModel() {
-  model = await tf.loadLayersModel("web_model/model.json");
+model = await tf.loadLayersModel("frontend/web_model/model.json");
   drawGrid();
 }
 
@@ -72,3 +72,4 @@ loadModel();
 </script>
 </body>
 </html>
+

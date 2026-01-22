@@ -32,7 +32,7 @@ function colorMap(v){
 // ===== CARGAR MODELO =====
 async function loadModel() {
   try {
-    model = await tf.loadLayersModel("web_model/model.json");
+    model = await tf.loadLayersModel("frontend/web_model/model.json");
     statusText.innerText = "Modelo cargado";
     btnGen.disabled = false;
     btnMap.disabled = false;
@@ -123,3 +123,4 @@ loadModel();
 </script>
 </body>
 </html>
+

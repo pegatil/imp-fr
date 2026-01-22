@@ -8,28 +8,42 @@
 <body>
 
 <h2>Clasificador Neural</h2>
-<button onclick="generatePoints()">Generar puntos</button>
-<button onclick="predictMap()">Predecir mapa</button>
+<button id="btnGen" disabled>Generar puntos</button>
+<button id="btnMap" disabled>Predecir mapa</button>
 
 <canvas id="canvas" width="500" height="500"></canvas>
+
+<p id="status">Cargando modelo...</p>
 
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-let model;
+const btnGen = document.getElementById("btnGen");
+const btnMap = document.getElementById("btnMap");
+const statusText = document.getElementById("status");
+
+let model = null;
 let points = [];
 
 function colorMap(v){
   return v > 0.5 ? "salmon" : "skyblue";
 }
 
-// Cargar modelo entrenado
+// ===== CARGAR MODELO =====
 async function loadModel() {
-  model = await tf.loadLayersModel("frontend/web_model/model.json");
-  drawGrid();
+  try {
+    model = await tf.loadLayersModel("web_model/model.json");
+    statusText.innerText = "Modelo cargado";
+    btnGen.disabled = false;
+    btnMap.disabled = false;
+    drawGrid();
+  } catch(e) {
+    statusText.innerText = "Error cargando modelo";
+    console.error(e);
+  }
 }
 
-// Dibujar grilla
+// ===== GRID =====
 function drawGrid() {
   ctx.clearRect(0,0,500,500);
   ctx.strokeStyle = "#ddd";
@@ -45,18 +59,20 @@ function drawGrid() {
   }
 }
 
-// Generar puntos aleatorios
-function generatePoints(){
+// ===== GENERAR PUNTOS =====
+btnGen.onclick = () => {
+  if(!model) return;
   points = [];
   for(let i=0;i<200;i++){
     let x = Math.random()*2 - 1;
     let y = Math.random()*2 - 1;
     points.push([x,y]);
   }
+  drawGrid();
   drawPoints();
-}
+};
 
-// Dibujar puntos según modelo
+// ===== DIBUJAR PUNTOS =====
 function drawPoints(){
   for(let p of points){
     let pred = model.predict(tf.tensor2d([[p[0],p[1]]]));
@@ -69,8 +85,9 @@ function drawPoints(){
   }
 }
 
-// Pintar mapa completo
-async function predictMap() {
+// ===== MAPA COMPLETO =====
+btnMap.onclick = async () => {
+  if(!model) return;
   const res = 100;
   for (let i=0;i<res;i++) {
     for (let j=0;j<res;j++) {
@@ -83,10 +100,11 @@ async function predictMap() {
     }
   }
   drawPoints();
-}
+};
 
-// Click interactivo
+// ===== CLICK INTERACTIVO =====
 canvas.addEventListener("click", e => {
+  if(!model) return;
   let rect = canvas.getBoundingClientRect();
   let x = (e.clientX - rect.left)/250 - 1;
   let y = (e.clientY - rect.top)/250 - 1;
@@ -100,9 +118,8 @@ canvas.addEventListener("click", e => {
   });
 });
 
-// Inicializar
+// ===== INIT =====
 loadModel();
 </script>
 </body>
 </html>
-

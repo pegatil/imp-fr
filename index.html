@@ -1,70 +1,74 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-    <head>
-        <title> IMP </title>
-    </head>
-<body class="inicio">
-    <div class="nombre">
-        <center><h1 class="titulo">IMP</h1></center>
-    </div>
-   <div class="eslogan">
-       <center>
-           <div class="esloganp">rapido, confiable y seguro</div>
-       </center>
-       
-   </div>
-    <div>
-        <center>
-            <h2>menu</h2>
-            <a href="que somos.html">
-                <input type="button" value="que somos" class="opc">
-            </a>
-            <br />
-            <a href="nuestros proyectos.html">
-                <input type="button" value="nuestros proyectos" class="opc">
-            </a>
-            <br />
-           
-            <a href="organisacion.html">
-                <input type="button" value="estructura" class="opc">
-            </a>
-            <br />
-            <a href="contactanos.html">
-                <input type="button" value="contactanos" class="opc">
-            </a>
+<head>
+  <meta charset="utf-8">
+  <title>Inferencia con Botón</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.16.0"></script>
+</head>
+<body>
 
-        </center>
-    </div>
+<h2>Clasificador Neural</h2>
+<button onclick="predict()">Predecir</button>
+<canvas id="canvas" width="500" height="500"></canvas>
 
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let model;
 
-    <style>
-        .inicio {
-            background-color: #145d1bec;
-        }
-        .nombre {
-            background-color: #18541e;
-            display: block;
-            margin: -10px;
-            padding: 5px;
-            padding-bottom: 5px;
-        }
-        .titulo{
-            margin:0px;
-        }
-        .eslogan{
-            display:block;
-            width: 100hvm;
-            background-color:#145d1b;
-            margin: -8px -8px -8px -8px;
-        }
-        .esloganp {
-            width: 100%;
-            padding: 16px
-        }
-        .opc{
-            border:0px;
-            background-color:#d8252500;
-        }
-    </style>
+function colorMap(v){
+  return v > 0.5 ? "salmon" : "skyblue";
+}
+
+async function loadModel() {
+  model = await tf.loadLayersModel("web_model/model.json");
+  drawGrid();
+}
+
+function drawGrid() {
+  ctx.clearRect(0,0,500,500);
+  ctx.strokeStyle = "#ddd";
+  for(let i=0;i<=10;i++){
+    ctx.beginPath();
+    ctx.moveTo(i*50,0);
+    ctx.lineTo(i*50,500);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0,i*50);
+    ctx.lineTo(500,i*50);
+    ctx.stroke();
+  }
+}
+
+async function predict() {
+  const res = 100;
+  for (let i=0;i<res;i++) {
+    for (let j=0;j<res;j++) {
+      let x = i/res*2 - 1;
+      let y = j/res*2 - 1;
+      let pred = model.predict(tf.tensor2d([[x,y]]));
+      let v = (await pred.data())[0];
+      ctx.fillStyle = colorMap(v);
+      ctx.fillRect(i*5, j*5, 5, 5);
+    }
+  }
+}
+
+canvas.addEventListener("click", e => {
+  let rect = canvas.getBoundingClientRect();
+  let x = (e.clientX - rect.left)/250 - 1;
+  let y = (e.clientY - rect.top)/250 - 1;
+
+  let pred = model.predict(tf.tensor2d([[x,y]]));
+  pred.data().then(v => {
+    ctx.fillStyle = colorMap(v[0]);
+    ctx.beginPath();
+    ctx.arc((x+1)*250, (y+1)*250, 6, 0, Math.PI*2);
+    ctx.fill();
+  });
+});
+
+loadModel();
+</script>
 </body>
 </html>

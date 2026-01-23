@@ -11,12 +11,14 @@ const classNames = [
 // Cargar modelo
 async function loadModel() {
     try {
-        alert('🔄 Cargando modelo...');
-        model = await tf.loadLayersModel('frontend/model.json');
-        alert('✅ Modelo cargado correctamente');
-        
-        // Verificar arquitectura del modelo
-        model.summary();
+        // La ruta cambia de 'model/model.json' a simplemente 'model.json'
+        model = await tf.loadLayersModel('model.json'); // [citation:1]
+        console.log('✅ Modelo cargado correctamente desde la raíz.');
+    } catch (error) {
+        console.error('❌ Error cargando el modelo:', error);
+        // ... resto del manejo de errores ...
+    }
+}
         
         // Habilitar interacción
         document.getElementById('predictBtn').disabled = false;

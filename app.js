@@ -105,7 +105,7 @@ async function loadModel() {
         updateStatus('📡 Descargando modelo de IA...', 'loading');
         
         // Intentar cargar el modelo
-        model = await tf.loadLayersModel('model.json');
+        model = await tf.loadLayersModel('frontend/model.json');
         
         // Verificar que el modelo se cargó correctamente
         if (!model) {

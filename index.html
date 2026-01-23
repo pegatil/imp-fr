@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clasificador Fashion MNIST</title>
     <style>
+        /* RESET Y ESTILOS BASE */
         * {
             margin: 0;
             padding: 0;
@@ -13,178 +14,304 @@
         }
         
         body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            color: #333;
         }
         
+        /* CONTENEDOR PRINCIPAL */
         .container {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             padding: 40px;
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             text-align: center;
+            animation: fadeIn 0.5s ease-out;
         }
         
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* TÍTULOS */
         h1 {
             color: #333;
             margin-bottom: 10px;
-            font-size: 28px;
+            font-size: 2.2em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .subtitle {
             color: #666;
             margin-bottom: 30px;
-            font-size: 16px;
+            font-size: 1.1em;
+            line-height: 1.5;
         }
         
+        /* ÁREA DE SUBIDA */
         .upload-area {
-            border: 3px dashed #6a11cb;
+            border: 3px dashed #667eea;
             border-radius: 15px;
             padding: 40px 20px;
-            margin: 25px 0;
+            margin: 30px 0;
             cursor: pointer;
-            transition: all 0.3s;
-            background: #f9f7ff;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+            position: relative;
+            overflow: hidden;
         }
         
         .upload-area:hover {
-            background: #f0ebff;
-            border-color: #2575fc;
+            background: #eef1ff;
+            border-color: #764ba2;
+            transform: translateY(-2px);
+        }
+        
+        .upload-area.drag-over {
+            background: #e0e7ff;
+            border-color: #4f46e5;
+            border-style: solid;
         }
         
         .upload-icon {
             font-size: 48px;
             margin-bottom: 15px;
-            color: #6a11cb;
+            color: #667eea;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
         
         #fileInput {
             display: none;
         }
         
+        /* PREVISUALIZACIÓN */
         .image-preview {
-            margin: 25px 0;
+            margin: 30px 0;
             display: none;
         }
         
+        .preview-title {
+            margin-bottom: 15px;
+            color: #555;
+            font-weight: 600;
+        }
+        
         #previewCanvas {
-            border: 2px solid #ddd;
+            border: 2px solid #e2e8f0;
             border-radius: 10px;
             margin: 10px auto;
             display: block;
             background: black;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
+        /* BOTONES */
         .btn {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 16px;
+            padding: 16px 35px;
+            font-size: 1.1em;
             font-weight: 600;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: transform 0.2s;
-            margin: 10px;
-            width: 200px;
+            transition: all 0.3s ease;
+            margin: 15px 10px;
+            min-width: 220px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
         
-        .btn:hover {
-            transform: translateY(-2px);
+        .btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active:not(:disabled) {
+            transform: translateY(-1px);
         }
         
         .btn:disabled {
-            background: #cccccc;
+            background: #cbd5e0;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
         
-        .status {
-            margin: 20px 0;
-            padding: 15px;
+        /* ESTADOS Y MENSAJES */
+        .status-container {
+            margin: 25px 0;
+            min-height: 60px;
+        }
+        
+        #status {
+            padding: 15px 20px;
             border-radius: 10px;
             font-weight: 500;
+            margin-bottom: 10px;
+            display: none;
+            text-align: left;
+            animation: slideIn 0.3s ease-out;
         }
         
-        .loading {
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .status.loading {
             background: #fff3cd;
             color: #856404;
-            border: 1px solid #ffeaa7;
+            border-left: 4px solid #ffc107;
         }
         
-        .success {
+        .status.success {
             background: #d4edda;
             color: #155724;
-            border: 1px solid #c3e6cb;
+            border-left: 4px solid #28a745;
         }
         
-        .error {
+        .status.error {
             background: #f8d7da;
             color: #721c24;
-            border: 1px solid #f5c6cb;
+            border-left: 4px solid #dc3545;
         }
         
+        /* CLASES */
         .class-list {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-top: 25px;
+            gap: 10px;
+            margin: 30px 0;
             text-align: left;
         }
         
         .class-item {
-            padding: 8px 12px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            font-size: 14px;
+            padding: 12px 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+            font-size: 0.95em;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
         }
         
-        .github-link {
-            margin-top: 30px;
+        .class-item:hover {
+            background: #edf2f7;
+            transform: translateX(5px);
+        }
+        
+        .class-item strong {
+            color: #667eea;
+            font-weight: 700;
+        }
+        
+        /* GITHUB FOOTER */
+        .github-footer {
+            margin-top: 40px;
             padding-top: 20px;
-            border-top: 1px solid #eee;
-            color: #666;
-            font-size: 14px;
+            border-top: 1px solid #e2e8f0;
+            color: #718096;
+            font-size: 0.9em;
         }
         
-        .github-link a {
-            color: #6a11cb;
+        .github-footer a {
+            color: #667eea;
             text-decoration: none;
             font-weight: 600;
+            transition: color 0.2s;
+        }
+        
+        .github-footer a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .class-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .subtitle {
+                font-size: 1em;
+            }
+            
+            .upload-area {
+                padding: 30px 15px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🧥 Clasificador Fashion MNIST</h1>
-        <p class="subtitle">Sube una imagen de prenda y la IA la identificará</p>
+        <p class="subtitle">Sube una imagen de prenda de vestir y la inteligencia artificial la identificará al instante.</p>
         
-        <div id="status" class="status" style="display: none;">
-            Inicializando aplicación...
+        <div class="status-container">
+            <div id="status" class="status">
+                Inicializando la aplicación...
+            </div>
         </div>
         
-        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-area" id="uploadArea">
             <div class="upload-icon">📁</div>
-            <h3>Haz clic para subir una imagen</h3>
-            <p>Formato: JPG, PNG, GIF (recomendado: fondo claro)</p>
+            <h3>Haz clic o arrastra una imagen aquí</h3>
+            <p>Formatos aceptados: JPG, PNG, GIF (recomendado: fondo claro, prenda centrada)</p>
         </div>
         
         <input type="file" id="fileInput" accept="image/*">
         
         <div class="image-preview" id="imagePreview">
-            <h4>Vista previa (procesada):</h4>
+            <h4 class="preview-title">Imagen procesada y normalizada:</h4>
             <canvas id="previewCanvas" width="280" height="280"></canvas>
-            <p><small>Imagen normalizada a 28x28 píxeles, escala de grises</small></p>
+            <p><small>La imagen se ha convertido a 28x28 píxeles en escala de grises para el análisis.</small></p>
         </div>
         
-        <button class="btn" id="predictBtn" disabled onclick="predictImage()">
-            🔍 Identificar Prenda
+        <button class="btn" id="predictBtn" disabled>
+            <span class="btn-icon">🔍</span>
+            <span class="btn-text">Identificar Prenda</span>
         </button>
         
         <div class="class-list">
@@ -200,14 +327,17 @@
             <div class="class-item"><strong>9:</strong> Botín</div>
         </div>
         
-        <div class="github-link">
-            Desplegado en <a href="https://pages.github.com" target="_blank">GitHub Pages</a> • 
-            Modelo: Fashion MNIST con TensorFlow.js
+        <div class="github-footer">
+            🚀 Aplicación desplegada en <a href="https://pages.github.com" target="_blank">GitHub Pages</a> • 
+            🤖 Modelo: Fashion MNIST con TensorFlow.js • 
+            💡 Consejo: Usa imágenes con buen contraste para mejores resultados
         </div>
     </div>
 
-    <!-- TensorFlow.js -->
+    <!-- TensorFlow.js desde CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    
+    <!-- Nuestro archivo JavaScript -->
     <script src="app.js"></script>
 </body>
 </html>

@@ -78,7 +78,7 @@ async function loadModelWithRetry(maxRetries = 3) {
             console.log(`🔄 Intento ${attempt} de cargar el modelo...`);
             
             // Cargar el modelo desde la RUTA CORRECTA
-            model = await tf.loadLayersModel('model.json');
+            model = await tf.loadLayersModel('frontend/model.json');
             
             // Verificar que el modelo se cargó correctamente
             if (!model || model.layers.length === 0) {

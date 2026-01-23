@@ -3,80 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clasificador de Fashion MNIST</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <title>Clasificador Fashion MNIST</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-        h1 { color: #333; text-align: center; margin-bottom: 20px; font-size: 2.5em; }
-        .upload-area { border: 3px dashed #667eea; border-radius: 15px; padding: 40px; text-align: center; margin: 30px 0; cursor: pointer; transition: all 0.3s; background: #f8f9ff; }
-        .upload-area:hover { background: #eef1ff; border-color: #764ba2; }
-        #fileInput { display: none; }
-        .canvas-container { display: flex; justify-content: center; gap: 40px; margin: 30px 0; flex-wrap: wrap; }
-        canvas { border: 2px solid #ddd; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        #originalCanvas { background: #000; }
-        #normalizedCanvas { background: #000; }
-        button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 40px; font-size: 1.1em; border-radius: 10px; cursor: pointer; display: block; margin: 20px auto; transition: transform 0.3s; }
-        button:hover { transform: translateY(-3px); }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        .result { background: #f8f9ff; padding: 20px; border-radius: 15px; margin-top: 30px; text-align: center; min-height: 100px; }
-        .prediction { font-size: 2em; color: #333; margin: 10px 0; }
-        .confidence { font-size: 1.2em; color: #667eea; }
-        .class-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 30px; }
-        .class-item { padding: 8px 15px; background: #eef1ff; border-radius: 20px; font-size: 0.9em; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .upload-area {
+            border: 3px dashed #6a11cb;
+            border-radius: 15px;
+            padding: 40px 20px;
+            margin: 25px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f9f7ff;
+        }
+        
+        .upload-area:hover {
+            background: #f0ebff;
+            border-color: #2575fc;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #6a11cb;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .image-preview {
+            margin: 25px 0;
+            display: none;
+        }
+        
+        #previewCanvas {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin: 10px auto;
+            display: block;
+            background: black;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin: 10px;
+            width: 200px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        
+        .loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .class-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 25px;
+            text-align: left;
+        }
+        
+        .class-item {
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .github-link {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .github-link a {
+            color: #6a11cb;
+            text-decoration: none;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🧥 Clasificador de Fashion MNIST</h1>
+        <h1>🧥 Clasificador Fashion MNIST</h1>
+        <p class="subtitle">Sube una imagen de prenda y la IA la identificará</p>
         
-        <!-- Área para subir imagen -->
+        <div id="status" class="status" style="display: none;">
+            Inicializando aplicación...
+        </div>
+        
         <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-            <h3>📤 Sube una imagen de prenda de vestir</h3>
-            <p>Haz clic aquí o arrastra una imagen</p>
-            <input type="file" id="fileInput" accept="image/*">
+            <div class="upload-icon">📁</div>
+            <h3>Haz clic para subir una imagen</h3>
+            <p>Formato: JPG, PNG, GIF (recomendado: fondo claro)</p>
         </div>
-
-        <!-- Contenedor de canvases -->
-        <div class="canvas-container">
-            <div>
-                <h4>Original (28x28)</h4>
-                <canvas id="originalCanvas" width="280" height="280"></canvas>
-            </div>
-            <div>
-                <h4>Normalizada (lista para el modelo)</h4>
-                <canvas id="normalizedCanvas" width="280" height="280"></canvas>
-            </div>
+        
+        <input type="file" id="fileInput" accept="image/*">
+        
+        <div class="image-preview" id="imagePreview">
+            <h4>Vista previa (procesada):</h4>
+            <canvas id="previewCanvas" width="280" height="280"></canvas>
+            <p><small>Imagen normalizada a 28x28 píxeles, escala de grises</small></p>
         </div>
-
-        <!-- Botón para predecir -->
-        <button id="predictBtn" disabled>🔍 ¿Qué prenda es?</button>
-
-        <!-- Resultados -->
-        <div class="result">
-            <h3>Resultado:</h3>
-            <p id="predictionText">Esperando imagen...</p>
-            <p id="confidenceText"></p>
-        </div>
-
-        <!-- Etiquetas de clases -->
+        
+        <button class="btn" id="predictBtn" disabled onclick="predictImage()">
+            🔍 Identificar Prenda
+        </button>
+        
         <div class="class-list">
-            <div class="class-item">0: Camiseta/Top</div>
-            <div class="class-item">1: Pantalón</div>
-            <div class="class-item">2: Suéter</div>
-            <div class="class-item">3: Vestido</div>
-            <div class="class-item">4: Abrigo</div>
-            <div class="class-item">5: Sandalia</div>
-            <div class="class-item">6: Camisa</div>
-            <div class="class-item">7: Zapatilla</div>
-            <div class="class-item">8: Bolso</div>
-            <div class="class-item">9: Botín</div>
+            <div class="class-item"><strong>0:</strong> Camiseta/Top</div>
+            <div class="class-item"><strong>1:</strong> Pantalón</div>
+            <div class="class-item"><strong>2:</strong> Suéter</div>
+            <div class="class-item"><strong>3:</strong> Vestido</div>
+            <div class="class-item"><strong>4:</strong> Abrigo</div>
+            <div class="class-item"><strong>5:</strong> Sandalia</div>
+            <div class="class-item"><strong>6:</strong> Camisa</div>
+            <div class="class-item"><strong>7:</strong> Zapatilla</div>
+            <div class="class-item"><strong>8:</strong> Bolso</div>
+            <div class="class-item"><strong>9:</strong> Botín</div>
+        </div>
+        
+        <div class="github-link">
+            Desplegado en <a href="https://pages.github.com" target="_blank">GitHub Pages</a> • 
+            Modelo: Fashion MNIST con TensorFlow.js
         </div>
     </div>
 
     <!-- TensorFlow.js -->
-  
-    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>

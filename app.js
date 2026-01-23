@@ -26,7 +26,7 @@ async function loadModel() {
         console.log('📦 Cargando modelo desde model.json...');
         
         // Intentar cargar el modelo (ruta relativa para GitHub Pages)
-        model = await tf.loadLayersModel('model.json');
+        model = await tf.loadLayersModel('frontend/model.json');
         
         console.log('✅ Modelo cargado correctamente');
         isModelLoaded = true;

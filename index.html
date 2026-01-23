@@ -1,126 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title>Neural Playground</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.16.0"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificador de Fashion MNIST</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        h1 { color: #333; text-align: center; margin-bottom: 20px; font-size: 2.5em; }
+        .upload-area { border: 3px dashed #667eea; border-radius: 15px; padding: 40px; text-align: center; margin: 30px 0; cursor: pointer; transition: all 0.3s; background: #f8f9ff; }
+        .upload-area:hover { background: #eef1ff; border-color: #764ba2; }
+        #fileInput { display: none; }
+        .canvas-container { display: flex; justify-content: center; gap: 40px; margin: 30px 0; flex-wrap: wrap; }
+        canvas { border: 2px solid #ddd; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        #originalCanvas { background: #000; }
+        #normalizedCanvas { background: #000; }
+        button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 40px; font-size: 1.1em; border-radius: 10px; cursor: pointer; display: block; margin: 20px auto; transition: transform 0.3s; }
+        button:hover { transform: translateY(-3px); }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .result { background: #f8f9ff; padding: 20px; border-radius: 15px; margin-top: 30px; text-align: center; min-height: 100px; }
+        .prediction { font-size: 2em; color: #333; margin: 10px 0; }
+        .confidence { font-size: 1.2em; color: #667eea; }
+        .class-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 30px; }
+        .class-item { padding: 8px 15px; background: #eef1ff; border-radius: 20px; font-size: 0.9em; }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>🧥 Clasificador de Fashion MNIST</h1>
+        
+        <!-- Área para subir imagen -->
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <h3>📤 Sube una imagen de prenda de vestir</h3>
+            <p>Haz clic aquí o arrastra una imagen</p>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
 
-<h2>Clasificador Neural</h2>
-<button id="btnGen" disabled>Generar puntos</button>
-<button id="btnMap" disabled>Predecir mapa</button>
+        <!-- Contenedor de canvases -->
+        <div class="canvas-container">
+            <div>
+                <h4>Original (28x28)</h4>
+                <canvas id="originalCanvas" width="280" height="280"></canvas>
+            </div>
+            <div>
+                <h4>Normalizada (lista para el modelo)</h4>
+                <canvas id="normalizedCanvas" width="280" height="280"></canvas>
+            </div>
+        </div>
 
-<canvas id="canvas" width="500" height="500"></canvas>
+        <!-- Botón para predecir -->
+        <button id="predictBtn" disabled>🔍 ¿Qué prenda es?</button>
 
-<p id="status">Cargando modelo...</p>
+        <!-- Resultados -->
+        <div class="result">
+            <h3>Resultado:</h3>
+            <p id="predictionText">Esperando imagen...</p>
+            <p id="confidenceText"></p>
+        </div>
 
-<script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-const btnGen = document.getElementById("btnGen");
-const btnMap = document.getElementById("btnMap");
-const statusText = document.getElementById("status");
+        <!-- Etiquetas de clases -->
+        <div class="class-list">
+            <div class="class-item">0: Camiseta/Top</div>
+            <div class="class-item">1: Pantalón</div>
+            <div class="class-item">2: Suéter</div>
+            <div class="class-item">3: Vestido</div>
+            <div class="class-item">4: Abrigo</div>
+            <div class="class-item">5: Sandalia</div>
+            <div class="class-item">6: Camisa</div>
+            <div class="class-item">7: Zapatilla</div>
+            <div class="class-item">8: Bolso</div>
+            <div class="class-item">9: Botín</div>
+        </div>
+    </div>
 
-let model = null;
-let points = [];
-
-function colorMap(v){
-  return v > 0.5 ? "salmon" : "skyblue";
-}
-
-// ===== CARGAR MODELO =====
-async function loadModel() {
-  try {
-    model = await tf.loadLayersModel("frontend/web_model/model.json");
-    statusText.innerText = "Modelo cargado";
-    btnGen.disabled = false;
-    btnMap.disabled = false;
-    drawGrid();
-  } catch(e) {
-    statusText.innerText = "Error cargando modelo";
-    console.error(e);
-  }
-}
-
-// ===== GRID =====
-function drawGrid() {
-  ctx.clearRect(0,0,500,500);
-  ctx.strokeStyle = "#ddd";
-  for(let i=0;i<=10;i++){
-    ctx.beginPath();
-    ctx.moveTo(i*50,0);
-    ctx.lineTo(i*50,500);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(0,i*50);
-    ctx.lineTo(500,i*50);
-    ctx.stroke();
-  }
-}
-
-// ===== GENERAR PUNTOS =====
-btnGen.onclick = () => {
-  if(!model) return;
-  points = [];
-  for(let i=0;i<200;i++){
-    let x = Math.random()*2 - 1;
-    let y = Math.random()*2 - 1;
-    points.push([x,y]);
-  }
-  drawGrid();
-  drawPoints();
-};
-
-// ===== DIBUJAR PUNTOS =====
-function drawPoints(){
-  for(let p of points){
-    let pred = model.predict(tf.tensor2d([[p[0],p[1]]]));
-    pred.data().then(v => {
-      ctx.fillStyle = colorMap(v[0]);
-      ctx.beginPath();
-      ctx.arc((p[0]+1)*250, (p[1]+1)*250, 4, 0, Math.PI*2);
-      ctx.fill();
-    });
-  }
-}
-
-// ===== MAPA COMPLETO =====
-btnMap.onclick = async () => {
-  if(!model) return;
-  const res = 100;
-  for (let i=0;i<res;i++) {
-    for (let j=0;j<res;j++) {
-      let x = i/res*2 - 1;
-      let y = j/res*2 - 1;
-      let pred = model.predict(tf.tensor2d([[x,y]]));
-      let v = (await pred.data())[0];
-      ctx.fillStyle = colorMap(v);
-      ctx.fillRect(i*5, j*5, 5, 5);
-    }
-  }
-  drawPoints();
-};
-
-// ===== CLICK INTERACTIVO =====
-canvas.addEventListener("click", e => {
-  if(!model) return;
-  let rect = canvas.getBoundingClientRect();
-  let x = (e.clientX - rect.left)/250 - 1;
-  let y = (e.clientY - rect.top)/250 - 1;
-
-  let pred = model.predict(tf.tensor2d([[x,y]]));
-  pred.data().then(v => {
-    ctx.fillStyle = colorMap(v[0]);
-    ctx.beginPath();
-    ctx.arc((x+1)*250, (y+1)*250, 6, 0, Math.PI*2);
-    ctx.fill();
-  });
-});
-
-// ===== INIT =====
-loadModel();
-</script>
+    <!-- TensorFlow.js -->
+  
+    <script src="script.js"></script>
 </body>
 </html>
-

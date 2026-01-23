@@ -12,7 +12,7 @@ const classNames = [
 async function loadModel() {
     try {
         alert('🔄 Cargando modelo...');
-        model = await tf.loadLayersModel('model/model.json');
+        model = await tf.loadLayersModel('frontend/model.json');
         alert('✅ Modelo cargado correctamente');
         
         // Verificar arquitectura del modelo

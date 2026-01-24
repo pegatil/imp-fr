@@ -3,341 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clasificador Fashion MNIST</title>
-    <style>
-        /* RESET Y ESTILOS BASE */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            color: #333;
-        }
-        
-        /* CONTENEDOR PRINCIPAL */
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
-            animation: fadeIn 0.5s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* TÍTULOS */
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 2.2em;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 1.1em;
-            line-height: 1.5;
-        }
-        
-        /* ÁREA DE SUBIDA */
-        .upload-area {
-            border: 3px dashed #667eea;
-            border-radius: 15px;
-            padding: 40px 20px;
-            margin: 30px 0;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: #f8f9ff;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .upload-area:hover {
-            background: #eef1ff;
-            border-color: #764ba2;
-            transform: translateY(-2px);
-        }
-        
-        .upload-area.drag-over {
-            background: #e0e7ff;
-            border-color: #4f46e5;
-            border-style: solid;
-        }
-        
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            color: #667eea;
-            animation: bounce 2s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-        
-        #fileInput {
-            display: none;
-        }
-        
-        /* PREVISUALIZACIÓN */
-        .image-preview {
-            margin: 30px 0;
-            display: none;
-        }
-        
-        .preview-title {
-            margin-bottom: 15px;
-            color: #555;
-            font-weight: 600;
-        }
-        
-        #previewCanvas {
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            margin: 10px auto;
-            display: block;
-            background: black;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* BOTONES */
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 16px 35px;
-            font-size: 1.1em;
-            font-weight: 600;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 15px 10px;
-            min-width: 220px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-        
-        .btn:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn:active:not(:disabled) {
-            transform: translateY(-1px);
-        }
-        
-        .btn:disabled {
-            background: #cbd5e0;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        /* ESTADOS Y MENSAJES */
-        .status-container {
-            margin: 25px 0;
-            min-height: 60px;
-        }
-        
-        #status {
-            padding: 15px 20px;
-            border-radius: 10px;
-            font-weight: 500;
-            margin-bottom: 10px;
-            display: none;
-            text-align: left;
-            animation: slideIn 0.3s ease-out;
-        }
-        
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        .status.loading {
-            background: #fff3cd;
-            color: #856404;
-            border-left: 4px solid #ffc107;
-        }
-        
-        .status.success {
-            background: #d4edda;
-            color: #155724;
-            border-left: 4px solid #28a745;
-        }
-        
-        .status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #dc3545;
-        }
-        
-        /* CLASES */
-        .class-list {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin: 30px 0;
-            text-align: left;
-        }
-        
-        .class-item {
-            padding: 12px 15px;
-            background: #f8fafc;
-            border-radius: 8px;
-            font-size: 0.95em;
-            border: 1px solid #e2e8f0;
-            transition: all 0.2s;
-        }
-        
-        .class-item:hover {
-            background: #edf2f7;
-            transform: translateX(5px);
-        }
-        
-        .class-item strong {
-            color: #667eea;
-            font-weight: 700;
-        }
-        
-        /* GITHUB FOOTER */
-        .github-footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
-            color: #718096;
-            font-size: 0.9em;
-        }
-        
-        .github-footer a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-        
-        .github-footer a:hover {
-            color: #764ba2;
-            text-decoration: underline;
-        }
-        
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .container {
-                padding: 25px;
-                margin: 10px;
-            }
-            
-            h1 {
-                font-size: 1.8em;
-            }
-            
-            .class-list {
-                grid-template-columns: 1fr;
-            }
-            
-            .btn {
-                width: 100%;
-                margin: 10px 0;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .container {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 1.5em;
-            }
-            
-            .subtitle {
-                font-size: 1em;
-            }
-            
-            .upload-area {
-                padding: 30px 15px;
-            }
-        }
-    </style>
+    <title>Clasificador de Prendas de Ropa</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
 </head>
 <body>
     <div class="container">
-        <h1>🧥 Clasificador Fashion MNIST</h1>
-        <p class="subtitle">Sube una imagen de prenda de vestir y la inteligencia artificial la identificará al instante.</p>
-        
-        <div class="status-container">
-            <div id="status" class="status">
-                Inicializando la aplicación...
+        <header>
+            <h1>🧥 Clasificador de Prendas de Ropa</h1>
+            <p class="subtitle">Sube una imagen de prenda y el modelo de IA la clasificará usando Fashion MNIST</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <p class="upload-text">Arrastra y suelta una imagen aquí</p>
+                    <p class="upload-text-secondary">o haz clic para seleccionar</p>
+                    <input type="file" id="imageInput" accept="image/*" hidden>
+                    <button class="btn-select" id="selectButton">Seleccionar Imagen</button>
+                </div>
+                
+                <div class="preview-section">
+                    <div class="image-preview-container">
+                        <h3>Vista Previa</h3>
+                        <div class="image-wrapper">
+                            <canvas id="imageCanvas" width="280" height="280"></canvas>
+                            <div id="imagePlaceholder">
+                                <p>La imagen aparecerá aquí</p>
+                            </div>
+                        </div>
+                        <div class="image-controls">
+                            <button class="btn-secondary" id="clearButton">Limpiar</button>
+                            <button class="btn-primary" id="predictButton" disabled>Clasificar Imagen</button>
+                        </div>
+                    </div>
+                    
+                    <div class="results-section">
+                        <h3>Resultados de la Clasificación</h3>
+                        <div class="results-container">
+                            <div class="loading" id="loadingIndicator">
+                                <div class="spinner"></div>
+                                <p>Procesando imagen...</p>
+                            </div>
+                            
+                            <div class="results" id="results">
+                                <div class="prediction-result">
+                                    <div class="prediction-header">
+                                        <span class="label">Prenda Predicha:</span>
+                                        <span class="value" id="predictedClass">-</span>
+                                    </div>
+                                    <div class="confidence">
+                                        <span class="label">Confianza:</span>
+                                        <span class="value" id="confidenceValue">-</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="class-probabilities">
+                                    <h4>Probabilidades por Clase:</h4>
+                                    <div id="probabilitiesList">
+                                        <!-- Las probabilidades se agregarán aquí dinámicamente -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="error" id="errorMessage">
+                                <p>Ha ocurrido un error. Intenta nuevamente.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+            
+            <div class="info-section">
+                <h3>📋 Instrucciones de Uso</h3>
+                <ol>
+                    <li>Selecciona o arrastra una imagen de una prenda de ropa (preferiblemente fondo claro)</li>
+                    <li>La imagen será procesada automáticamente a escala de grises y redimensionada a 28x28 píxeles</li>
+                    <li>Haz clic en "Clasificar Imagen" para obtener la predicción</li>
+                    <li>Revisa los resultados mostrados en la sección de clasificación</li>
+                </ol>
+                
+                <h3>🎯 Clases del Modelo</h3>
+                <div class="classes-grid">
+                    <div class="class-item">0: Camiseta/Top</div>
+                    <div class="class-item">1: Pantalón</div>
+                    <div class="class-item">2: Suéter</div>
+                    <div class="class-item">3: Vestido</div>
+                    <div class="class-item">4: Abrigo</div>
+                    <div class="class-item">5: Sandalia</div>
+                    <div class="class-item">6: Camisa</div>
+                    <div class="class-item">7: Zapatilla</div>
+                    <div class="class-item">8: Bolso</div>
+                    <div class="class-item">9: Bota</div>
+                </div>
+                
+                <div class="model-info">
+                    <p><strong>Modelo:</strong> Redes Convolucionales (CNN)</p>
+                    <p><strong>Dataset:</strong> Fashion MNIST</p>
+                    <p><strong>Framework:</strong> TensorFlow.js</p>
+                </div>
+            </div>
+        </main>
         
-        <div class="upload-area" id="uploadArea">
-            <div class="upload-icon">📁</div>
-            <h3>Haz clic o arrastra una imagen aquí</h3>
-            <p>Formatos aceptados: JPG, PNG, GIF (recomendado: fondo claro, prenda centrada)</p>
-        </div>
-        
-        <input type="file" id="fileInput" accept="image/*">
-        
-        <div class="image-preview" id="imagePreview">
-            <h4 class="preview-title">Imagen procesada y normalizada:</h4>
-            <canvas id="previewCanvas" width="280" height="280"></canvas>
-            <p><small>La imagen se ha convertido a 28x28 píxeles en escala de grises para el análisis.</small></p>
-        </div>
-        
-        <button class="btn" id="predictBtn" disabled>
-            <span class="btn-icon">🔍</span>
-            <span class="btn-text">Identificar Prenda</span>
-        </button>
-        
-        <div class="class-list">
-            <div class="class-item"><strong>0:</strong> Camiseta/Top</div>
-            <div class="class-item"><strong>1:</strong> Pantalón</div>
-            <div class="class-item"><strong>2:</strong> Suéter</div>
-            <div class="class-item"><strong>3:</strong> Vestido</div>
-            <div class="class-item"><strong>4:</strong> Abrigo</div>
-            <div class="class-item"><strong>5:</strong> Sandalia</div>
-            <div class="class-item"><strong>6:</strong> Camisa</div>
-            <div class="class-item"><strong>7:</strong> Zapatilla</div>
-            <div class="class-item"><strong>8:</strong> Bolso</div>
-            <div class="class-item"><strong>9:</strong> Botín</div>
-        </div>
-        
-        <div class="github-footer">
-            🚀 Aplicación desplegada en <a href="https://pages.github.com" target="_blank">GitHub Pages</a> • 
-            🤖 Modelo: Fashion MNIST con TensorFlow.js • 
-            💡 Consejo: Usa imágenes con buen contraste para mejores resultados
-        </div>
+        <footer>
+            <p>Clasificador de Prendas de Ropa &copy; 2023 | Modelo CNN entrenado con Fashion MNIST</p>
+        </footer>
     </div>
 
-    <!-- TensorFlow.js desde CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-    
-    <!-- Nuestro archivo JavaScript -->
-    <script src="app.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

@@ -1,0 +1,374 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+main {
+    padding: 30px;
+}
+
+.upload-section {
+    margin-bottom: 40px;
+}
+
+.upload-area {
+    border: 3px dashed #4b6cb7;
+    border-radius: 15px;
+    padding: 40px 20px;
+    text-align: center;
+    margin-bottom: 30px;
+    background-color: #f8f9ff;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.upload-area:hover {
+    background-color: #eef1ff;
+    border-color: #182848;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.upload-text {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.upload-text-secondary {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.btn-select, .btn-primary, .btn-secondary {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-select {
+    background-color: #4b6cb7;
+    color: white;
+}
+
+.btn-select:hover {
+    background-color: #3a5795;
+}
+
+.preview-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+@media (max-width: 900px) {
+    .preview-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+.image-preview-container, .results-section {
+    background-color: #f8f9fa;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.image-preview-container h3, .results-section h3 {
+    margin-bottom: 20px;
+    color: #182848;
+    border-bottom: 2px solid #eaeaea;
+    padding-bottom: 10px;
+}
+
+.image-wrapper {
+    width: 280px;
+    height: 280px;
+    margin: 0 auto 20px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+canvas {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+#imagePlaceholder {
+    color: #999;
+    text-align: center;
+    padding: 20px;
+}
+
+.image-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.btn-primary {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #218838;
+}
+
+.btn-primary:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.results-container {
+    min-height: 300px;
+    position: relative;
+}
+
+.loading {
+    display: none;
+    text-align: center;
+    padding: 40px 0;
+}
+
+.spinner {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #4b6cb7;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.results {
+    display: none;
+}
+
+.error {
+    display: none;
+    text-align: center;
+    padding: 40px 0;
+    color: #dc3545;
+}
+
+.prediction-result {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.prediction-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.prediction-header .label {
+    font-weight: 600;
+    color: #182848;
+}
+
+.prediction-header .value {
+    font-weight: 700;
+    color: #4b6cb7;
+    font-size: 1.4rem;
+}
+
+.confidence {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.confidence .value {
+    font-weight: 700;
+    color: #28a745;
+    font-size: 1.2rem;
+}
+
+.class-probabilities {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.class-probabilities h4 {
+    margin-bottom: 15px;
+    color: #182848;
+}
+
+.probability-bar {
+    margin-bottom: 12px;
+}
+
+.probability-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.probability-label span:first-child {
+    font-weight: 600;
+}
+
+.bar-container {
+    height: 12px;
+    background-color: #e9ecef;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4b6cb7, #182848);
+    border-radius: 6px;
+    width: 0%;
+    transition: width 1s ease-out;
+}
+
+.info-section {
+    background-color: #f8f9fa;
+    border-radius: 15px;
+    padding: 25px;
+    margin-top: 30px;
+}
+
+.info-section h3 {
+    color: #182848;
+    margin-bottom: 15px;
+    margin-top: 20px;
+}
+
+.info-section h3:first-child {
+    margin-top: 0;
+}
+
+.info-section ol {
+    padding-left: 20px;
+    margin-bottom: 25px;
+}
+
+.info-section li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.classes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.class-item {
+    background-color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    font-size: 0.9rem;
+}
+
+.model-info {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eaeaea;
+}
+
+.model-info p {
+    background-color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+footer {
+    background-color: #182848;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9rem;
+}
+
+/* Estado activo para arrastrar archivos */
+.upload-area.drag-over {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+}
+
+/* Mostrar/ocultar elementos */
+.hidden {
+    display: none !important;
+}

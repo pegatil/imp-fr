@@ -49,7 +49,7 @@ async function loadModel() {
         }
     } catch (error) {
         console.error('Error al cargar el modelo:', error);
-        alert('Error al cargar el modelo. Asegúrate de que los archivos del modelo estén en la carpeta "model" y accesibles.');
+        alert(error);
     }
 }
 

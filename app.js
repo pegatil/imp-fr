@@ -34,7 +34,7 @@ const probabilitiesList = document.getElementById('probabilitiesList');
 // Cargar el modelo cuando se inicie la aplicación
 async function loadModel() {
     try {
-        console.log('Cargando modelo...');
+        alert('Cargando modelo...');
         // Asegúrate de que la ruta sea correcta para tu modelo en GitHub Pages
         model = await tf.loadLayersModel("frontend/model.json");
         console.log('Modelo cargado exitosamente');
